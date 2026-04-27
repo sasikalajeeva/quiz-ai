@@ -64,7 +64,11 @@ jobs:
         uses: actions/configure-pages@v3
       
       - name: Create dist directory
-        run: mkdir -p dist && cp -r . dist/
+        run: |
+          mkdir -p dist
+          cp -v quiz.html dist/
+          if [ -d "assets" ]; then cp -r assets/ dist/; fi
+          if [ -d "styles" ]; then cp -r styles/ dist/; fi
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
