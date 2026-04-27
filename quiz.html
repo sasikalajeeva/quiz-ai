@@ -1,0 +1,706 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sky: #4FC3F7;
+    --sun: #FFD54F;
+    --grass: #66BB6A;
+    --coral: #FF7043;
+    --purple: #9C27B0;
+    --mint: #26C6DA;
+    --pink: #EC407A;
+    --bg: #FFF9F0;
+    --card: #FFFFFF;
+    --text: #2D2D2D;
+    --sub: #666;
+  }
+
+  #quiz-root {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 520px;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 520px; padding: 20px; }
+
+  /* ---- START SCREEN ---- */
+  #start-screen {
+    background: linear-gradient(160deg, #FFFDE7 0%, #E3F2FD 100%);
+    gap: 12px;
+  }
+
+  .mascot { font-size: 72px; animation: bounce 1.2s ease-in-out infinite alternate; }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+
+  .start-title {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 36px;
+    color: #5C35C9;
+    text-shadow: 3px 3px 0 #B39DDB;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  .start-subtitle {
+    font-size: 15px;
+    color: var(--sub);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    margin: 6px 0;
+  }
+
+  .cat-btn {
+    background: white;
+    border: 3px solid transparent;
+    border-radius: 16px;
+    padding: 12px 8px;
+    cursor: pointer;
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text);
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+  }
+
+  .cat-btn:hover { transform: translateY(-3px); box-shadow: 0 7px 0 rgba(0,0,0,0.1); }
+  .cat-btn.selected { border-color: #5C35C9; background: #EDE7F6; }
+
+  .cat-btn .cat-icon { font-size: 28px; display: block; margin-bottom: 4px; }
+
+  .big-btn {
+    background: linear-gradient(135deg, #7C4DFF, #5C35C9);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 40px;
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #3D1C9E;
+    transition: transform 0.1s, box-shadow 0.1s;
+    letter-spacing: 0.5px;
+  }
+
+  .big-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #3D1C9E; }
+  .big-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #3D1C9E; }
+  .big-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---- QUIZ SCREEN ---- */
+  #quiz-screen {
+    background: var(--bg);
+    justify-content: flex-start;
+    padding: 16px 20px 20px;
+    gap: 0;
+  }
+
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .score-badge {
+    background: #FFF3E0;
+    border: 2px solid #FFB74D;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-weight: 800;
+    font-size: 15px;
+    color: #E65100;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .q-counter {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sub);
+    background: #F5F5F5;
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+
+  /* Timer */
+  .timer-wrap { width: 100%; margin-bottom: 10px; }
+  .timer-bar-bg { background: #E8EAF6; border-radius: 10px; height: 14px; overflow: hidden; }
+  .timer-bar { height: 100%; border-radius: 10px; transition: width 0.5s linear, background 0.5s; }
+
+  .timer-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .timer-label { font-size: 13px; font-weight: 700; color: var(--sub); }
+  .timer-num { font-size: 15px; font-weight: 800; color: #E53935; }
+
+  /* Question */
+  .question-card {
+    background: white;
+    border-radius: 20px;
+    padding: 18px 20px;
+    width: 100%;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-left: 6px solid #7C4DFF;
+  }
+
+  .question-text {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.45;
+  }
+
+  .q-category-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    background: #EDE7F6;
+    color: #7C4DFF;
+    border-radius: 10px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Options */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .opt-btn {
+    background: white;
+    border: 3px solid #E0E0E0;
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    box-shadow: 0 3px 0 #E0E0E0;
+    min-height: 54px;
+  }
+
+  .opt-btn:hover:not(:disabled) { border-color: #7C4DFF; transform: translateY(-2px); box-shadow: 0 5px 0 #B39DDB; }
+  .opt-btn.correct { background: #E8F5E9; border-color: #43A047; box-shadow: 0 3px 0 #388E3C; color: #1B5E20; }
+  .opt-btn.wrong { background: #FFEBEE; border-color: #E53935; box-shadow: 0 3px 0 #C62828; color: #B71C1C; }
+  .opt-btn:disabled { cursor: not-allowed; }
+
+  .opt-letter {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #EDE7F6;
+    color: #7C4DFF;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .opt-btn.correct .opt-letter { background: #43A047; color: white; }
+  .opt-btn.wrong .opt-letter { background: #E53935; color: white; }
+
+  /* Feedback */
+  .feedback-bar {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    margin-top: 12px;
+    padding: 10px 16px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .feedback-bar.show { opacity: 1; }
+  .feedback-bar.correct { background: #E8F5E9; color: #2E7D32; }
+  .feedback-bar.wrong { background: #FFEBEE; color: #B71C1C; }
+
+  /* Progress dots */
+  .progress-dots { display: flex; gap: 6px; margin-top: 10px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #E0E0E0; transition: background 0.3s; }
+  .dot.done-correct { background: #43A047; }
+  .dot.done-wrong { background: #E53935; }
+  .dot.current { background: #7C4DFF; transform: scale(1.3); }
+
+  /* ---- RESULT SCREEN ---- */
+  #result-screen {
+    background: linear-gradient(160deg, #F3E5F5 0%, #E8EAF6 100%);
+    gap: 10px;
+    text-align: center;
+  }
+
+  .trophy { font-size: 70px; animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes pop { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .result-title {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 32px;
+    color: #5C35C9;
+  }
+
+  .score-big {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 56px;
+    color: #5C35C9;
+    line-height: 1;
+  }
+
+  .score-label { font-size: 14px; color: var(--sub); font-weight: 600; }
+
+  .stars-row { display: flex; gap: 8px; justify-content: center; font-size: 36px; }
+
+  .badges-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .badge {
+    background: white;
+    border-radius: 14px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .result-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+  .outline-btn {
+    background: white;
+    border: 2px solid #7C4DFF;
+    border-radius: 50px;
+    padding: 10px 28px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #7C4DFF;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .outline-btn:hover { background: #EDE7F6; }
+
+  /* Confetti */
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    animation: fall linear forwards;
+    pointer-events: none;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(560px) rotate(720deg); opacity: 0; }
+  }
+</style>
+
+<div id="quiz-root">
+  <!-- START SCREEN -->
+  <div class="screen active" id="start-screen">
+    <div class="mascot">🦉</div>
+    <div class="start-title">Super Quiz Time!</div>
+    <div class="start-subtitle">Pick a topic and show how smart you are!</div>
+
+    <div class="category-grid">
+      <button class="cat-btn selected" data-cat="math" onclick="selectCat(this)">
+        <span class="cat-icon">🔢</span> Maths
+      </button>
+      <button class="cat-btn" data-cat="science" onclick="selectCat(this)">
+        <span class="cat-icon">🔬</span> Science
+      </button>
+      <button class="cat-btn" data-cat="english" onclick="selectCat(this)">
+        <span class="cat-icon">📖</span> English
+      </button>
+      <button class="cat-btn" data-cat="gk" onclick="selectCat(this)">
+        <span class="cat-icon">🌍</span> G.K.
+      </button>
+      <button class="cat-btn" data-cat="evs" onclick="selectCat(this)">
+        <span class="cat-icon">🌿</span> EVS
+      </button>
+      <button class="cat-btn" data-cat="mixed" onclick="selectCat(this)">
+        <span class="cat-icon">🎲</span> Mixed
+      </button>
+    </div>
+
+    <button class="big-btn" onclick="startQuiz()">🚀 Start Quiz!</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="quiz-screen">
+    <div class="quiz-header">
+      <div class="score-badge">⭐ <span id="score-display">0</span></div>
+      <div class="q-counter">Q <span id="q-num">1</span> / <span id="q-total">10</span></div>
+    </div>
+
+    <div class="timer-wrap">
+      <div class="timer-row">
+        <span class="timer-label">Time left</span>
+        <span class="timer-num" id="timer-num">15</span>
+      </div>
+      <div class="timer-bar-bg">
+        <div class="timer-bar" id="timer-bar" style="width:100%; background:#4CAF50;"></div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-category-tag" id="q-cat-tag">Maths</div>
+      <div class="question-text" id="question-text">Loading...</div>
+    </div>
+
+    <div class="options-grid" id="options-grid"></div>
+
+    <div class="feedback-bar" id="feedback-bar"></div>
+
+    <div class="progress-dots" id="progress-dots"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="result-screen">
+    <div class="trophy" id="trophy-emoji">🏆</div>
+    <div class="result-title" id="result-title">Amazing!</div>
+    <div class="score-big" id="score-big">8/10</div>
+    <div class="score-label">questions correct</div>
+    <div class="stars-row" id="stars-row"></div>
+    <div class="badges-row" id="badges-row"></div>
+    <div class="result-actions">
+      <button class="outline-btn" onclick="replayQuiz()">🔄 Play Again</button>
+      <button class="big-btn" onclick="goHome()">🏠 New Topic</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QDB = {
+  math: [
+    { q: "What is 7 × 8?", opts: ["54","56","63","64"], ans: 1 },
+    { q: "How many sides does a hexagon have?", opts: ["5","6","7","8"], ans: 1 },
+    { q: "What is 144 ÷ 12?", opts: ["11","12","13","14"], ans: 1 },
+    { q: "Which is the smallest 4-digit number?", opts: ["999","1001","1000","9999"], ans: 2 },
+    { q: "What is 25% of 200?", opts: ["25","50","75","100"], ans: 1 },
+    { q: "How many minutes are in 2 hours?", opts: ["100","110","120","130"], ans: 2 },
+    { q: "What is 15 + 28?", opts: ["33","41","43","45"], ans: 2 },
+    { q: "If you have 5 dozens of eggs, how many eggs is that?", opts: ["50","55","60","65"], ans: 2 },
+    { q: "Which fraction is bigger: 3/4 or 2/3?", opts: ["2/3","Both equal","3/4","Cannot say"], ans: 2 },
+    { q: "What comes next: 2, 4, 8, 16, __?", opts: ["20","24","30","32"], ans: 3 },
+  ],
+  science: [
+    { q: "What do plants need to make their own food?", opts: ["Sunlight only","Sunlight, water & air","Only water","Only soil"], ans: 1 },
+    { q: "Which organ pumps blood around the body?", opts: ["Lungs","Liver","Heart","Kidney"], ans: 2 },
+    { q: "What state of matter is ice?", opts: ["Gas","Liquid","Solid","Plasma"], ans: 2 },
+    { q: "Which planet is closest to the Sun?", opts: ["Earth","Venus","Mars","Mercury"], ans: 3 },
+    { q: "How many bones does an adult human body have?", opts: ["106","206","306","406"], ans: 1 },
+    { q: "What gas do we breathe in to stay alive?", opts: ["Carbon dioxide","Hydrogen","Oxygen","Nitrogen"], ans: 2 },
+    { q: "Which animal lays the largest eggs on land?", opts: ["Hen","Duck","Ostrich","Crocodile"], ans: 2 },
+    { q: "What is the process when water turns into vapour called?", opts: ["Condensation","Evaporation","Freezing","Melting"], ans: 1 },
+    { q: "Which is the hardest natural substance?", opts: ["Gold","Iron","Diamond","Quartz"], ans: 2 },
+    { q: "How many teeth does a healthy adult human have?", opts: ["28","30","32","34"], ans: 2 },
+  ],
+  english: [
+    { q: "Which word is a noun? 'The big dog runs fast'", opts: ["big","runs","fast","dog"], ans: 3 },
+    { q: "What is the plural of 'child'?", opts: ["Childs","Childes","Children","Childern"], ans: 2 },
+    { q: "Choose the correct spelling:", opts: ["Freind","Friend","Freund","Frend"], ans: 1 },
+    { q: "Which sentence uses a question mark correctly?", opts: ["Are you ok.","Are you ok?","Are you ok!","Are you ok,"], ans: 1 },
+    { q: "What is the opposite of 'ancient'?", opts: ["Old","Modern","Antique","Vintage"], ans: 1 },
+    { q: "Which word is an adjective? 'She wore a beautiful dress.'", opts: ["She","wore","beautiful","dress"], ans: 2 },
+    { q: "How do you spell the number 40?", opts: ["Fourty","Forty","Fourtey","Fortey"], ans: 1 },
+    { q: "Identify the verb: 'The children played in the garden.'", opts: ["children","played","garden","The"], ans: 1 },
+    { q: "What punctuation ends an exclamation?", opts: [".","?","!",","], ans: 2 },
+    { q: "Which is the synonym of 'happy'?", opts: ["Sad","Joyful","Angry","Tired"], ans: 1 },
+  ],
+  gk: [
+    { q: "What is the capital of India?", opts: ["Mumbai","Kolkata","New Delhi","Chennai"], ans: 2 },
+    { q: "How many colours are in a rainbow?", opts: ["5","6","7","8"], ans: 2 },
+    { q: "Who wrote the Indian National Anthem?", opts: ["Mahatma Gandhi","Subhas Chandra Bose","Rabindranath Tagore","Jawaharlal Nehru"], ans: 2 },
+    { q: "Which is the largest ocean on Earth?", opts: ["Atlantic","Arctic","Indian","Pacific"], ans: 3 },
+    { q: "On which date is Republic Day celebrated in India?", opts: ["15 Aug","26 Jan","2 Oct","1 Nov"], ans: 1 },
+    { q: "What is the national animal of India?", opts: ["Lion","Elephant","Tiger","Leopard"], ans: 2 },
+    { q: "How many continents are there on Earth?", opts: ["5","6","7","8"], ans: 2 },
+    { q: "Who invented the telephone?", opts: ["Edison","Bell","Newton","Einstein"], ans: 1 },
+    { q: "Which is the tallest mountain in the world?", opts: ["K2","Kangchenjunga","Mount Everest","Lhotse"], ans: 2 },
+    { q: "What is the currency of Japan?", opts: ["Yuan","Dollar","Won","Yen"], ans: 3 },
+  ],
+  evs: [
+    { q: "Which of these is a source of renewable energy?", opts: ["Coal","Petrol","Solar power","Natural gas"], ans: 2 },
+    { q: "What do we call the layer of gases surrounding Earth?", opts: ["Hydrosphere","Atmosphere","Lithosphere","Biosphere"], ans: 1 },
+    { q: "Which bin should plastic bottles go into for recycling?", opts: ["Red bin","Green bin","Blue bin","Black bin"], ans: 2 },
+    { q: "What is the main cause of air pollution in cities?", opts: ["Trees","Vehicle smoke","Rain","Birds"], ans: 1 },
+    { q: "Where do bears sleep during winter?", opts: ["Migration","Hibernation","Estivation","They stay awake"], ans: 1 },
+    { q: "Which of these is NOT a natural disaster?", opts: ["Earthquake","Flood","Factory fire","Tsunami"], ans: 2 },
+    { q: "What fraction of the Earth is covered by water?", opts: ["One half","Two thirds","Three quarters","One quarter"], ans: 1 },
+    { q: "Which gas is mainly responsible for the greenhouse effect?", opts: ["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"], ans: 2 },
+    { q: "What do we call animals that eat only plants?", opts: ["Carnivores","Omnivores","Herbivores","Scavengers"], ans: 2 },
+    { q: "Which is the best way to save water at home?", opts: ["Take long showers","Fix leaking taps","Leave taps running","Water plants at noon"], ans: 1 },
+  ],
+  mixed: []
+};
+
+// Build mixed from all
+['math','science','english','gk','evs'].forEach(c => {
+  QDB.mixed.push(...QDB[c].map(q => ({ ...q, _cat: c })));
+});
+
+const CAT_NAMES = { math:'Maths', science:'Science', english:'English', gk:'G.K.', evs:'EVS', mixed:'Mixed' };
+const CAT_EMOJIS = { math:'🔢', science:'🔬', english:'📖', gk:'🌍', evs:'🌿', mixed:'🎲' };
+const CONFETTI_COLORS = ['#7C4DFF','#FFD54F','#FF7043','#43A047','#26C6DA','#EC407A'];
+const LETTERS = ['A','B','C','D'];
+const TIME_PER_Q = 15;
+const QUESTIONS_PER_GAME = 10;
+
+let selectedCat = 'math';
+let questions = [];
+let currentQ = 0;
+let score = 0;
+let timerInterval = null;
+let timeLeft = TIME_PER_Q;
+let answered = false;
+let results = [];
+
+function selectCat(btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedCat = btn.dataset.cat;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  let pool = shuffle([...QDB[selectedCat]]).slice(0, QUESTIONS_PER_GAME);
+  questions = pool;
+  currentQ = 0; score = 0; results = [];
+  showScreen('quiz-screen');
+  buildDots();
+  loadQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function buildDots() {
+  const container = document.getElementById('progress-dots');
+  container.innerHTML = '';
+  for (let i = 0; i < questions.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = 'dot-' + i;
+    container.appendChild(d);
+  }
+}
+
+function updateDot(idx, correct) {
+  const d = document.getElementById('dot-' + idx);
+  if (d) d.className = 'dot ' + (correct ? 'done-correct' : 'done-wrong');
+  const next = document.getElementById('dot-' + (idx + 1));
+  if (next) next.className = 'dot current';
+}
+
+function loadQuestion() {
+  clearInterval(timerInterval);
+  answered = false;
+
+  const q = questions[currentQ];
+  const cat = q._cat || selectedCat;
+
+  document.getElementById('q-num').textContent = currentQ + 1;
+  document.getElementById('q-total').textContent = questions.length;
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('q-cat-tag').textContent = CAT_EMOJIS[cat] + ' ' + CAT_NAMES[cat];
+  document.getElementById('question-text').textContent = q.q;
+
+  const fb = document.getElementById('feedback-bar');
+  fb.className = 'feedback-bar';
+  fb.textContent = '';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span>${opt}`;
+    btn.onclick = () => handleAnswer(i, q.ans);
+    grid.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer() {
+  timeLeft = TIME_PER_Q;
+  updateTimerUI();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) handleAnswer(-1, questions[currentQ].ans);
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const pct = (timeLeft / TIME_PER_Q) * 100;
+  const bar = document.getElementById('timer-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = timeLeft > 7 ? '#4CAF50' : timeLeft > 4 ? '#FF9800' : '#E53935';
+  document.getElementById('timer-num').textContent = timeLeft;
+}
+
+function handleAnswer(chosen, correct) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  const btns = document.querySelectorAll('.opt-btn');
+  const isCorrect = chosen === correct;
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === chosen) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback-bar');
+  if (chosen === -1) {
+    fb.textContent = "⏰ Time's up! The answer was " + LETTERS[correct];
+    fb.className = 'feedback-bar wrong show';
+  } else if (isCorrect) {
+    score++;
+    document.getElementById('score-display').textContent = score;
+    const msgs = ["🎉 Correct! Brilliant!", "⭐ Amazing! Well done!", "🥳 Yes! You got it!", "🌟 Super smart!", "✅ Perfect answer!"];
+    fb.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    fb.className = 'feedback-bar correct show';
+  } else {
+    const msgs = ["😊 Good try! Keep going!", "💪 Almost! You'll get the next one!", "🌈 Don't give up!", "🤔 The right answer was " + questions[currentQ].opts[correct]];
+    fb.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    fb.className = 'feedback-bar wrong show';
+  }
+
+  results.push(isCorrect);
+  updateDot(currentQ, isCorrect);
+
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < questions.length) {
+      loadQuestion();
+    } else {
+      showResults();
+    }
+  }, 1400);
+}
+
+function showResults() {
+  showScreen('result-screen');
+
+  const total = questions.length;
+  const pct = score / total;
+
+  document.getElementById('score-big').textContent = score + '/' + total;
+
+  let title, trophy;
+  if (pct === 1) { title = "PERFECT SCORE! 🎊"; trophy = "🏆"; }
+  else if (pct >= 0.8) { title = "Awesome Work! 🎉"; trophy = "🥇"; }
+  else if (pct >= 0.6) { title = "Great Job! 😄"; trophy = "🥈"; }
+  else if (pct >= 0.4) { title = "Good Try! 💪"; trophy = "🥉"; }
+  else { title = "Keep Practising! 📚"; trophy = "⭐"; }
+
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('trophy-emoji').textContent = trophy;
+
+  const stars = Math.round(pct * 5);
+  let starsHTML = '';
+  for (let i = 0; i < 5; i++) starsHTML += i < stars ? '⭐' : '☆';
+  document.getElementById('stars-row').innerHTML = starsHTML;
+
+  const badges = [];
+  if (pct === 1) badges.push('🏅 Perfect!');
+  if (results.filter(Boolean).length >= 5) badges.push('🔥 Streak!');
+  if (score >= 8) badges.push('🎓 Scholar');
+  if (score >= 5) badges.push('🌟 Star Player');
+  badges.push('🏁 Quiz Complete!');
+
+  const badgesRow = document.getElementById('badges-row');
+  badgesRow.innerHTML = '';
+  badges.slice(0, 4).forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'badge';
+    el.textContent = b;
+    badgesRow.appendChild(el);
+  });
+
+  if (pct >= 0.6) launchConfetti();
+}
+
+function launchConfetti() {
+  const root = document.getElementById('quiz-root');
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const size = 6 + Math.random() * 10;
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: 0;
+      width: ${size}px;
+      height: ${size}px;
+      background: ${CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)]};
+      animation-duration: ${1.5 + Math.random() * 2}s;
+      animation-delay: ${Math.random() * 0.8}s;
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+    `;
+    root.appendChild(p);
+    setTimeout(() => p.remove(), 4000);
+  }
+}
+
+function replayQuiz() {
+  currentQ = 0; score = 0; results = [];
+  let pool = shuffle([...QDB[selectedCat]]).slice(0, QUESTIONS_PER_GAME);
+  questions = pool;
+  showScreen('quiz-screen');
+  buildDots();
+  loadQuestion();
+}
+
+function goHome() {
+  clearInterval(timerInterval);
+  showScreen('start-screen');
+}
+</script>
